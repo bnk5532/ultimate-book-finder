@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/bnk5532/ultimate-book-finder/issues"
   },
-  "homepage": "https://github.com/bnk5532/ultimate-book-finder#readme"
+  "homepage": "https://github.com/bnk5532/ultimate-book-finder#readme",
+  "dependencies": {
+    "react-router-dom": "^6.4.2"
+  }
 }
