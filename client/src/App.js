@@ -1,21 +1,43 @@
-import React from 'react';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import SearchBooks from './pages/SearchBooks';
-import SavedBooks from './pages/SavedBooks';
-import Navbar from './components/Navbar';
+import React from "react";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import SearchBooks from "./pages/SearchBooks";
+import SavedBooks from "./pages/SavedBooks";
+import Navbar from "./components/Navbar";
+import NoMatch from "./pages/NoMatch";
+
+import {
+  ApolloProvider,
+  ApolloClient,
+  InMemoryCache,
+  createHttpLink,
+} from "@apollo/client";
+
+const httpLink = createHttpLink({
+  uri: "/graphql",
+});
+
+const client = new ApolloClient({
+  link: httpLink,
+  cache: new InMemoryCache(),
+});
 
 function App() {
   return (
-    <Router>
-      <>
-        <Navbar />
-        <Switch>
-          <Route exact path='/' component={SearchBooks} />
+    <ApolloProvider client={client}>
+      <Router>
+        <>
+          <Navbar />
+          <Routes>
+            {/* <Route exact path='/' component={SearchBooks} />
           <Route exact path='/saved' component={SavedBooks} />
-          <Route render={() => <h1 className='display-2'>Wrong page!</h1>} />
-        </Switch>
-      </>
-    </Router>
+          <Route render={() => <h1 className='display-2'>Wrong page!</h1>} /> */}
+            <Route path="/" element={<SearchBooks />} />
+            <Route path="/saved" element={<SavedBooks />} />
+            <Route path="*" element={<NoMatch />} />
+          </Routes>
+        </>
+      </Router>
+    </ApolloProvider>
   );
 }
 
