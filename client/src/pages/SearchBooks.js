@@ -29,9 +29,10 @@ const SearchBooks = () => {
     event.preventDefault();
 
     if (!searchInput) {
+      console.log("empty input")
       return false;
     }
-
+    console.log(searchInput)
     try {
       const response = await searchGoogleBooks(searchInput);
 
