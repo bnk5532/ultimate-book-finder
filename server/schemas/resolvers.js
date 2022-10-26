@@ -16,25 +16,6 @@ const resolvers = {
 
       throw new AuthenticationError("Not logged in");
     },
-    users: async () => {
-      return User.find()
-        .select("-__v -password")
-        .populate("thoughts")
-        .populate("friends");
-    },
-    user: async (parent, { username }) => {
-      return User.findOne({ username })
-        .select("-__v -password")
-        .populate("friends")
-        .populate("thoughts");
-    },
-    books: async (parent, { username }) => {
-      const params = username ? { username } : {};
-      return Book.find(params).sort({ createdAt: -1 });
-    },
-    books: async (parent, { _id }) => {
-      return Book.findOne({ _id });
-    },
   },
 
   Mutation: {
@@ -60,7 +41,7 @@ const resolvers = {
       const token = signToken(user);
       return { token, user };
     },
-    saveBook: async (parent, { bookData }, context) => {
+    saveBook: async (parent, { book }, context) => {
       if (context.user) {
         const updatedUser = await Book.create({
           ...args,
@@ -69,7 +50,7 @@ const resolvers = {
 
         await User.findByIdAndUpdate(
           { _id: context.user._id },
-          { $push: { savedBooks: bookData } },
+          { $push: { savedBooks: book } },
           { new: true }
         );
 
@@ -78,7 +59,7 @@ const resolvers = {
 
       throw new AuthenticationError("You need to be logged in!");
     },
-    removeBook: async (parent, {bookId}, context) => {
+    removeBook: async (parent, { bookId }, context) => {
       if (context.user) {
         const book = await Book.findByIdAndUpdate({
           username: context.user.username,
@@ -94,8 +75,8 @@ const resolvers = {
       }
 
       throw new AuthenticationError("You need to be logged in!");
-    }
     },
+  },
 };
 
 module.exports = resolvers;
