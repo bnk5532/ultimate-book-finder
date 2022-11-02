@@ -1,5 +1,5 @@
 const { AuthenticationError } = require("apollo-server-express");
-const { User, Book } = require("../models");
+const { User } = require("../models");
 const { signToken } = require("../utils/auth");
 
 const resolvers = {
@@ -8,8 +8,7 @@ const resolvers = {
       if (context.user) {
         const userData = await User.findOne({ _id: context.user._id })
           .select("-__v -password")
-          .populate("thoughts")
-          .populate("friends");
+          .populate("books")
 
         return userData;
       }
@@ -20,10 +19,17 @@ const resolvers = {
 
   Mutation: {
     addUser: async (parent, args) => {
-      const user = await User.create(args);
-      const token = signToken(user);
-
-      return { token, user };
+      console.log("add user mutation")
+      console.log(args)
+      try {
+        
+        const user = await User.create(args);
+        const token = signToken(user);
+  
+        return { token, user };
+      } catch (error) {
+        console.log(error)
+      }
     },
     login: async (parent, { email, password }) => {
       const user = await User.findOne({ email });
@@ -43,12 +49,8 @@ const resolvers = {
     },
     saveBook: async (parent, { book }, context) => {
       if (context.user) {
-        const updatedUser = await Book.create({
-          ...args,
-          username: context.user.username,
-        });
-
-        await User.findByIdAndUpdate(
+ 
+        const updatedUser = await User.findByIdAndUpdate(
           { _id: context.user._id },
           { $push: { savedBooks: book } },
           { new: true }
@@ -61,13 +63,9 @@ const resolvers = {
     },
     removeBook: async (parent, { bookId }, context) => {
       if (context.user) {
-        const book = await Book.findByIdAndUpdate({
-          username: context.user.username,
-        });
-
-        await User.findByIdAndUpdate(
+        const updatedUser = await User.findByIdAndUpdate(
           { _id: context.user._id },
-          { $pull: { savedBooks: bookId } },
+          { $pull: { savedBooks: {bookId} } },
           { new: true }
         );
 
